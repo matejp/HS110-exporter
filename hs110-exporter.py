@@ -4,6 +4,7 @@ import json
 import socket
 import argparse
 from struct import pack
+from distutils.version import LooseVersion
 
 version = 0.2
 
@@ -75,27 +76,28 @@ cmds = [commands['info'],commands['energy']]
 
 # Send command and receive reply
 try:
-	sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	sock_tcp.connect((ip, port))
-	
 	data = []
 	for cmd in cmds:
+		sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		sock_tcp.connect((ip, port))
 		sock_tcp.send(encrypt(cmd))
 		data.append(sock_tcp.recv(2048))
 	
-	sock_tcp.close()
+		sock_tcp.close()
 
 	for d in data:
 		# print "Sent:     ", cmd
+		# print decrypt(d[4:])
 		hs110_data = json.loads(decrypt(d[4:]))
 		first_key = hs110_data.keys()[0]
 		
 		print "Received: ", first_key
-		
+		sw_ver = ""
 		if first_key == 'system':
 			print "System data" #, hs110_data
+			sw_ver = hs110_data['system']['get_sysinfo']['sw_ver']
+			print sw_ver[0:5]
 			print hs110_data['system']['get_sysinfo']['hw_ver']
-			print hs110_data['system']['get_sysinfo']['sw_ver']
 			print hs110_data['system']['get_sysinfo']['alias']
 			print hs110_data['system']['get_sysinfo']['model']
 			print hs110_data['system']['get_sysinfo']['rssi']
@@ -103,7 +105,8 @@ try:
 			
 		elif first_key == 'emeter':
 			print "Emeter data" #, hs110_data
-			print ""hs110_data['emeter']['get_realtime']['total_wh']
+			print hs110_data
+			print hs110_data['emeter']['get_realtime']['total_wh']
 			print hs110_data['emeter']['get_realtime']['current_ma']
 			print hs110_data['emeter']['get_realtime']['power_mw']
 			print hs110_data['emeter']['get_realtime']['voltage_mv']
