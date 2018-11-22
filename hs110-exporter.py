@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 
+import os
 import json
 import time
 import socket
@@ -11,12 +12,12 @@ from prometheus_client import start_http_server, Gauge
 version = 1.0
 
 # Create metrics
-g_rssi 	= Gauge('rssi', 'Received signal strength indication', ['alias', 'sw_ver', 'hw_ver', 'model'])
-total	= Gauge('total', 'Total mw', ['alias'])  # mw
-power	= Gauge('power', 'Current Power drain', ['alias'])  # mw
-current = Gauge('current', 'Current Current drain', ['alias'])  # ma
-voltage = Gauge('voltage', 'Current voltage', ['alias'])  # mv
-err = Gauge('err_code', 'Error code', ['alias'])  # mv
+g_rssi 	= Gauge('rssi', 'Received signal strength indication (dBm)', ['alias', 'sw_ver', 'hw_ver', 'model'])
+total	= Gauge('total', 'Total power used (mWh)', ['alias'])  # mw
+power	= Gauge('power', 'Current Power drain (mW)', ['alias'])  # mw
+current = Gauge('current', 'Current Current drain (mA)', ['alias'])  # ma
+voltage = Gauge('voltage', 'Current voltage (mV)', ['alias'])  # mv
+err = Gauge('err_code', 'Error code', ['alias'])
 
 # Variables with label data
 alias = None
@@ -80,8 +81,8 @@ def iterator(payload):
 if __name__ == '__main__':
 	# Parse commandline arguments
 	parser = argparse.ArgumentParser(description="TP-Link Wi-Fi Smart Plug Client v" + str(version))
-	parser.add_argument("-p", "--pull_time", type=int, default=5, help="Pull sensor data every X seconds.")
-	parser.add_argument("-t", "--target", metavar="<hostname>", required=True, help="Target hostname or IP address", type=validHostname)
+	parser.add_argument("-p", "--pull_time", type=int, default=os.getenv('PULL_TIME', 20), help="Pull sensor data every X seconds.")
+	parser.add_argument("-t", "--target", metavar="<hostname>", default=os.getenv('TARGET_IP', 'localhost'), help="Target hostname or IP address", type=validHostname)
 	# group = parser.add_mutually_exclusive_group(required=True)
 	# group.add_argument("-c", "--command", metavar="<command>", help="Preset command to send. Choices are: "+", ".join(commands), choices=commands)
 	# group.add_argument("-j", "--json", metavar="<JSON string>", help="Full JSON string of command to send")
@@ -89,6 +90,9 @@ if __name__ == '__main__':
 
 
 	# Set target IP, port and command to send
+	if args.target == 'localhost':
+		print "Missing target IP"
+		exit(1)
 	ip = args.target
 	port = 9999
 
