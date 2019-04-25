@@ -1,5 +1,6 @@
 FROM python:2.7-alpine3.9
 
+RUN pip install prometheus_client
 RUN mkdir /app
 ADD hs110-exporter.py /app
 
