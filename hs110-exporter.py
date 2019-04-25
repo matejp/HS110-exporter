@@ -82,7 +82,8 @@ if __name__ == '__main__':
 	# Parse commandline arguments
 	parser = argparse.ArgumentParser(description="TP-Link Wi-Fi Smart Plug Client v" + str(version))
 	parser.add_argument("-p", "--pull_time", type=int, default=os.getenv('PULL_TIME', 20), help="Pull sensor data every X seconds.")
-	parser.add_argument("-t", "--target", metavar="<hostname>", default=os.getenv('TARGET_IP', 'localhost'), help="Target hostname or IP address", type=validHostname)
+	parser.add_argument("-t", "--target", metavar="hostname", default=os.getenv('TARGET_IP', 'localhost'), help="Target hostname or IP address", type=validHostname)
+	parser.add_argument("-e", "--exposeport", metavar="port number", default=os.getenv('EXPOSE_PORT', '8110'), help="Port number to expose the metrics on", type=int)
 	# group = parser.add_mutually_exclusive_group(required=True)
 	# group.add_argument("-c", "--command", metavar="<command>", help="Preset command to send. Choices are: "+", ".join(commands), choices=commands)
 	# group.add_argument("-j", "--json", metavar="<JSON string>", help="Full JSON string of command to send")
